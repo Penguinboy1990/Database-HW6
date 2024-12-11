@@ -54,7 +54,7 @@ BEGIN
   DECLARE account_type VARCHAR(50);
   
   -- Loop to generate 100,000 account records
-  WHILE i <= 50000 DO                             -- number of accounts (50k, 100k, 150k)
+  WHILE i <= 100000 DO                             -- number of accounts (50k, 100k, 150k)
     -- Randomly select a branch from the list of branches
     SET branch_name = ELT(FLOOR(1 + (RAND() * 6)), 'Brighton', 'Downtown', 'Mianus', 'Perryridge', 'Redwood', 'RoundHill');
     
@@ -110,8 +110,10 @@ DELIMITER ;
 -- Intermediate manual tests to check run-time sequences
 delete from accounts;
 select count(*) from accounts;
+select * from accounts;
 
 delete from speedChart;
+select count(*) from speedChart;
 select * from speedChart;
 
 call generate_accounts();
@@ -173,13 +175,17 @@ create procedure runQuery() -- this works on my machine when entire stored proce
 -- Step 1: Capture the start time with microsecond precision (6)
 	SET @start_time = NOW(6);
 
-	-- Step 2: Run the query you want to measure
-	SELECT count(*) FROM accounts -- point query
+	-- Step 2: Run the query you want to measure (swapped manually)
+	/*SELECT count(*) FROM accounts -- point query 1
 	WHERE branch_name = 'Downtown'
-	AND account_type = 'Savings';
-  /*SELECT count(*) FROM accounts -- range query
+	AND account_type = 'Savings';*/
+    /*SELECT count(*) FROM accounts -- point query 2
+	WHERE account_type = 'Checking';*/
+    /*SELECT count(*) FROM accounts -- range query 1
     WHERE branch_name = 'Downtown' AND
-    balance BETWEEN 10000 AND 5000*/
+    balance BETWEEN 10000 AND 5000;*/
+    SELECT count(*) FROM accounts -- range query 2
+    WHERE balance BETWEEN 0 AND 1000;
 
 	-- Step 3: Capture the end time with microsecond precision
 	SET @end_time = NOW(6);
@@ -190,7 +196,8 @@ create procedure runQuery() -- this works on my machine when entire stored proce
 		TIMESTAMPDIFF(SECOND, @start_time, @end_time) AS execution_time_seconds;
 	
 	-- Step 5: Save calculations in speedChart
-	Insert into speedChart Values(@start_time, @end_time, TIMESTAMPDIFF(MICROSECOND, @start_time, @end_time), TIMESTAMPDIFF(SECOND, @start_time, @end_time), "no key - point query");
-	select avg(runtimeMicro) from speedChart as Average_Microseconds;
+	Insert into speedChart Values(@start_time, @end_time, TIMESTAMPDIFF(MICROSECOND, @start_time, @end_time),
+    TIMESTAMPDIFF(SECOND, @start_time, @end_time), "primary key - range query");
+	select sum(runtimeMicro), avg(runtimeMicro)from speedChart as Average_Microseconds;
 end$$
 DELIMITER ;
