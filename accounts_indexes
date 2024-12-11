@@ -24,7 +24,7 @@ use indexing;
 
 -- Create the accounts table
 CREATE TABLE accounts (
-  account_num CHAR(6),                -- 6-digit account number (e.g., 00001, 00002, ...)
+  account_num CHAR(6) /*primary key*/,-- 6-digit account number (e.g., 00001, 00002, ...)
   branch_name VARCHAR(50),            -- Branch name (e.g., Brighton, Downtown, etc.)
   balance DECIMAL(10, 2),             -- Account balance, with two decimal places (e.g., 1000.50)
   account_type VARCHAR(50)            -- Type of the account (e.g., Savings, Checking)
